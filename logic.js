@@ -1,12 +1,14 @@
 //pull in geojson data
 const url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
+// read json
 d3.json(url, function(data) {
     //console.log(data.features);
 
     createCircles(data.features);
 });
 
+// function to assign color of circle marker based on earthquake magnitude
 function getColor(quakeMag) {
     //let color = "";
     if (quakeMag > 5) {
@@ -34,39 +36,26 @@ function getColor(quakeMag) {
 function createCircles(earthquakeData) {
 
     quakeCircles = [];
+    // for each feature define assign variable to coordinate tuples, magnitude, date and location
+    // to be reference for each circle marker
     earthquakeData.forEach(function (data) {
         let coords = [data.geometry.coordinates[1], data.geometry.coordinates[0]];
         let mag = data.properties.mag;
         let quakeDate = new Date(data.properties.time);
         let quakePlace = data.properties.place;
 
-        /*let color = "";
-        if (mag > 5) {
-            color = "#f21818";
-        }
-        else if (mag > 4) {
-            color = "#f26518";
-        }
-        else if (mag > 3) {
-            color = "#f2b33d";
-        }
-        else if (mag > 2) {
-            color = "#f0ea84";
-        }
-        else if (mag > 1) {
-            color = "#ccf084";
-        }
-        else {
-            color = "#daf7d7";
-        }*/
-
         //console.log(`${coords} | ${mag} | ${quakeDate} | ${quakePlace}`);
+        
+        // for each feature create a circle at the specified coordinate and define style of cirlce 
+        // baesd on magnitude
         var quakeCircle = L.circle(coords, {
             color: "black",
             weight: 0.5,
-            fillColor: getColor(mag),
+            fillColor: getColor(mag), // color is based on magnitude, see getColor function 
             fillOpacity: 1,
             radius: mag * 30000
+
+            //add popup with informaiton about the earthquake, locatin, date/time and size
         }).bindPopup(`<p><b> Location:</b> ${quakePlace} </p> <p> <b>Date and Time:</b> ${quakeDate} </p> <p><b>Magnitude: </b> ${mag}</p>`);
         quakeCircles.push(quakeCircle);
     });
@@ -76,40 +65,9 @@ function createCircles(earthquakeData) {
 };
 
 
-function createLegend(){
-    var legend = L.control({position: "bottomright"});
-
-    legend.onAdd = function (myMap) {
-        var div = L.DomUtil.create("div", "info legend");
-        var magnitudes = [0, 1, 2, 3, 4, 5];
-        var labels = [];
-
-        for (var i=0; i < magnitudes.length; i++) {
-            div.innerHTML += 
-            labels.push('<i class = "square" style="background:' + getColor(magnitudes[i] + 1) + '"></i> ' +
-			magnitudes[i] + (magnitudes[i + 1] ? '&ndash;' + magnitudes[i + 1] + '<br>' : '+'));
-        };
-
-        return div;
-
-    
-
-    };
-
-    legend.addTo(myMap);
-    //createMap(L.layerGroup(legend));
-
-
-}
-
 
 function createMap(earthquakes) {
 
-    /*let quakeLayers = Object.entries(earthquakes._layers);
-    quakeLayers.forEach(function(data){
-        console.log(data[]);
-    })
-    console.log(earthquakes._layers[1].options.fillColor);*/
     
     // create light layer
     var lightMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
@@ -142,6 +100,8 @@ function createMap(earthquakes) {
         "Dark View" : darkMap,
         "Satellite View" : satellitetMap
     };
+
+    // define overlay object
 
     var overlayMaps = {
         "Earthquakes" : earthquakes,
