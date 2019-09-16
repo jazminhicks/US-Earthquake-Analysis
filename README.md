@@ -1,4 +1,4 @@
-# leaflet-challenge
+# Earthquakes and Leaflet 
 
 ## Background
 
